@@ -1,43 +1,62 @@
 const _ = require('lodash')
+const User = require('../models/UsersModel')
 
-const Users = app => {
-  let _users = []
+const UsersController = app => {
 
   // create / register
   app.post('/api/users', (req, res)=>{
-    _users.push(req.body)
-    res.send('user created')
+    const newUser = new User(req.body)
+    newUser.save()
+    .then(()=>{
+      res.send('user created')
+    })
+    .catch(err=>{
+      console.error(err);
+    })
   })
 
   // read
   app.get('/api/users', (req, res)=>{
-    res.send(_users)
+    User.find()
+    .then(users => {
+      res.json(users)
+    })
+    .catch(err => {
+      console.error(err);
+    })
   })
 
   // read
   app.get('/api/users/:id', (req, res)=>{
-    let index = _.findIndex(_users, {
-      id: parseInt(req.params.id)
+    User.find({ _id : req.params.id})
+    .then(user => {
+      res.json(user)
     })
-    res.send(_users[index])
+    .catch(err => {
+      console.error(err);
+    })
   })
 
   // update
   app.put('/api/users/:id', (req, res)=>{
-    let index = _.findIndex(_users, {
-      id: parseInt(req.params.id)
+    User.update({ _id : req.params.id}, req.body)
+    .then(res => {
+      res.send('update success')
     })
-    // _.merge(_users[index], req.body)
-    _users[index] = req.body
-    res.send('user updated successfully')
+    .catch(err => {
+      console.error(err);
+    })
   })
 
   // delete
   app.delete('/api/users/:id', (req, res)=>{
-    _.remove(_users, user => {
-      return user.id === parseInt(req.params.id)
+    User.remove({ _id : req.params.id })
+    .then(()=> {
+      res.send('delete success')
     })
-    res.send('user removed successfully')
+    .catch(err => {
+      console.error(err);
+    })
   })
 
   // login
@@ -89,4 +108,4 @@ const Users = app => {
   })
 }
 
-module.exports = Users
+module.exports = UsersController

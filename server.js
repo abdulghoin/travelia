@@ -1,8 +1,14 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const mongoose = require('mongoose');
 const path = require('path')
 const PORT = process.env.PORT || 3030
 
+// set up connection to database
+mongoose.connect('mongodb://admin:admin@ds117965.mlab.com:17965/travelia', {
+  useMongoClient : true
+})
+mongoose.Promise = global.Promise
 
 // Create our app
 const app = express()
@@ -25,7 +31,7 @@ app.use(express.static('src'))
 
 // route and controllers
 const Users = require('./controllers/UsersController')(app)
-const Travels = require('./controllers/TravelsController')(app)
+const Travels = require('./controllers/Travels')(app)
 
 // run app
 // handle every other route with index.html, which will contain
