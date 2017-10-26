@@ -1,6 +1,7 @@
 const express = require('express'),
       bodyParser = require('body-parser'),
       mongoose = require('mongoose'),
+      User = require('./models/UsersModel'),
       jwt = require("jsonwebtoken"),
       path = require('path'),
       PORT = process.env.PORT || 3030
@@ -33,22 +34,23 @@ app.use((req, res, next)=>{
   // if (req.headers && req.headers.authorization && req.headers.authorization.split(' ')[0] === 'JWT') {
   //   jwt.verify(req.headers.authorization.split(' ')[1], 'RESTFULAPIs', (err, decode) => {
 
-  var token = (req.body && req.body.access_token) || (req.query && req.query.access_token) || req.headers['x-access-token']
-  console.log(token);
-  if (true) {
+  let token = (req.body && req.body.access_token) || (req.query && req.query.access_token) || req.headers['x-access-token']
+  User.findOne({ access_token : token })
+  .then( user => {
+    console.log(user);
     jwt.verify(token, 'RESTFULAPIs', (err, decode) => {
       if (err) {
         req.user = undefined
       } else {
-        req.user = decode
+        req.user = user
       }
-
       next()
     })
-  } else {
+  })
+  .catch(() => {
     req.user = undefined
     next()
-  }
+  })
 })
 
 // routes

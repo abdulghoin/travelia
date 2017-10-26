@@ -23,29 +23,29 @@ const getUsers = (req, res) => {
     res.json(users)
   })
   .catch(err => {
-    console.error(err);
+    res.status(500).json({ message : 'Internal Server Error.'})
   })
 }
 
 // read
 const getUser = (req, res) =>{
-  User.find({ _id : req.params.id})
+  User.findOne({ _id : req.params.id})
   .then(user => {
-    res.json(user)
+    res.status(200).json(user)
   })
   .catch(err => {
-    console.error(err);
+    res.status(500).json({ message : 'Internal Server Error.'})
   })
 }
 
 // update
 const updateUser = (req, res) => {
   User.update({ _id : req.params.id}, req.body)
-  .then(() => {
-    res.send('update success')
+  .then(user => {
+    res.status(200).json(user)
   })
   .catch(err => {
-    console.error(err);
+    res.json(err)
   })
 }
 
@@ -53,10 +53,10 @@ const updateUser = (req, res) => {
 const deleteUser = (req, res) => {
   User.remove({ _id : req.params.id })
   .then(()=> {
-    res.send('delete success')
+    res.status(200).json({ message : 'delete success.'})
   })
   .catch(err => {
-    console.error(err);
+    res.status(500).json({ message : 'Internal Server Error.'})
   })
 }
 
@@ -73,7 +73,7 @@ const login = (req, res) => {
         error_message : 'Password is required.'
       }
     ]
-    res.status(402).json({ error })
+    res.status(402).json(error)
   }
   let email = req.body.email
   let password = req.body.password
@@ -90,7 +90,7 @@ const login = (req, res) => {
           res.json(user)
         })
         .catch(() => {
-          res.status(500).json({ error_message : "Internal Server Error"})
+          res.status(500).json({ error_message : 'Internal Server Error.'})
         })
       } else {
         let error = []
@@ -98,7 +98,7 @@ const login = (req, res) => {
           error_label : 'password',
           error_message : 'Wrong password.'
         })
-        res.status(401).json({ error })
+        res.status(401).json(error)
       }
     })
     .catch(() => {
@@ -107,7 +107,7 @@ const login = (req, res) => {
         error_label : 'email',
         error_message : 'User not found.'
       })
-      res.status(404).json({ error })
+      res.status(404).json(error)
     })
   } else {
     let error = []
@@ -126,7 +126,7 @@ const login = (req, res) => {
       })
     }
 
-    res.status(402).json({error})
+    res.status(402).json(error)
   }
 }
 
@@ -140,15 +140,18 @@ const loginRequired = (req, res, next) => {
 
 // verify token
 const verify = (req, res) => {
-  User.find({ _id : req.user._id})
+  User.findOne({ _id : req.user._id})
   .then( user => {
     res.status(200).json(user)
+  })
+  .catch(() => {
+    res.status(500).json({ message : 'Internal Server Error.'})
   })
 }
 
 // logout
 const logout = (req, res) => {
-  User.find({ _id : req.user._id })
+  User.findOne({ _id : req.user._id })
   .then( user => {
     user.access_token = ''
     User.update({ _id : user._id}, user)
@@ -156,11 +159,11 @@ const logout = (req, res) => {
       res.status(200).json({ message : 'Logout success.'})
     })
     .catch(() => {
-      res.status(500).json({ error_message : "Internal Server Error"})
+      res.status(500).json({ error_message : 'Internal Server Error.'})
     })
   })
   .catch(() => {
-    res.status(500).json({ error_message : "Internal Server Error"})
+    res.status(500).json({ error_message : 'Internal Server Error.'})
   })
 }
 
