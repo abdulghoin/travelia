@@ -1,8 +1,9 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const mongoose = require('mongoose');
-const path = require('path')
-const PORT = process.env.PORT || 3030
+const express = require('express'),
+      bodyParser = require('body-parser'),
+      mongoose = require('mongoose'),
+      jwt = require("jsonwebtoken"),
+      path = require('path'),
+      PORT = process.env.PORT || 3030
 
 // set up connection to database
 mongoose.connect('mongodb://admin:admin@ds117965.mlab.com:17965/travelia', {
@@ -28,17 +29,30 @@ app.use((req, res, next)=>{
   }
 })
 app.use(express.static('src'))
+app.use((req, res, next)=>{
+  // if (req.headers && req.headers.authorization && req.headers.authorization.split(' ')[0] === 'JWT') {
+  //   jwt.verify(req.headers.authorization.split(' ')[1], 'RESTFULAPIs', (err, decode) => {
 
-// route and controllers
-const Users = require('./controllers/UsersController')(app)
-const Travels = require('./controllers/Travels')(app)
+  var token = (req.body && req.body.access_token) || (req.query && req.query.access_token) || req.headers['x-access-token']
+  console.log(token);
+  if (true) {
+    jwt.verify(token, 'RESTFULAPIs', (err, decode) => {
+      if (err) {
+        req.user = undefined
+      } else {
+        req.user = decode
+      }
 
-// run app
-// handle every other route with index.html, which will contain
-// a script tag to your application's JavaScript file(s).
-app.get('*', (req, res)=>{
-  res.sendFile(path.resolve(__dirname, 'src', 'index.html'))
+      next()
+    })
+  } else {
+    req.user = undefined
+    next()
+  }
 })
+
+// routes
+const routes = require('./routes')(app)
 
 // setting up server
 app.listen(PORT, ()=>{
