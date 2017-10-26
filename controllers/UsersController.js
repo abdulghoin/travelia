@@ -40,9 +40,14 @@ const getUser = (req, res) =>{
 
 // update
 const updateUser = (req, res) => {
-  User.update({ _id : req.params.id}, req.body)
-  .then(user => {
-    res.status(200).json(user)
+  req.body.updated_at = _.now()
+  // User.update({ _id : req.params.id}, req.body)
+  User.update({ _id : req.user._id}, req.body)
+  .then(() => {
+    User.findOne({ _id : req.user._id})
+    .then(user => {
+      res.status(200).json(user)
+    })
   })
   .catch(err => {
     res.json(err)
@@ -51,7 +56,8 @@ const updateUser = (req, res) => {
 
 // delete
 const deleteUser = (req, res) => {
-  User.remove({ _id : req.params.id })
+  // User.remove({ _id : req.params.id})
+  User.remove({ _id : req.user._id })
   .then(()=> {
     res.status(200).json({ message : 'delete success.'})
   })
@@ -151,16 +157,9 @@ const verify = (req, res) => {
 
 // logout
 const logout = (req, res) => {
-  User.findOne({ _id : req.user._id })
-  .then( user => {
-    user.access_token = ''
-    User.update({ _id : user._id}, user)
-    .then(() => {
-      res.status(200).json({ message : 'Logout success.'})
-    })
-    .catch(() => {
-      res.status(500).json({ error_message : 'Internal Server Error.'})
-    })
+  User.update({ _id : req.user._id}, { access_token : '' })
+  .then(() => {
+    res.status(200).json({ message : 'Logout success.'})
   })
   .catch(() => {
     res.status(500).json({ error_message : 'Internal Server Error.'})

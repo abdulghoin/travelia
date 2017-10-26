@@ -13,6 +13,16 @@ const userSchema = new Schema({
     trim : true,
     required : true
   },
+  profile_pic : {
+    type : String,
+    trim : true,
+    default : ''
+  },
+  cover_pic : {
+    type : String,
+    trim : true,
+    default : ''
+  },
   email : {
     type : String,
     trim : true,

@@ -5,11 +5,13 @@ const routes = app => {
   app.route('/api/users')
     .post(Users.register)
     .get(Users.loginRequired, Users.getUsers)
+    .put(Users.loginRequired, Users.updateUser) // hanya bisa update account sendiri
+    .delete(Users.loginRequired, Users.deleteUser) // hanya bisa hapus account sendiri
 
   app.route('/api/users/:id')
     .get(Users.loginRequired, Users.getUser)
-    .put(Users.loginRequired, Users.updateUser)
-    .delete(Users.loginRequired, Users.deleteUser)
+    // .put(Users.loginRequired, Users.updateUser) // bisa update account orang lain
+    // .delete(Users.loginRequired, Users.deleteUser) // bisa hapus account orang lain
 
   app.post('/api/users/login', Users.login)
   app.post('/api/users/verify', Users.loginRequired, Users.verify)
