@@ -12,17 +12,15 @@ export function login(email, password, remember_me) {
       password
     })
     .then((res)=>{
-      console.log(res);
       dispatch({type: 'LOGIN_SUCCESS', payload: res.data})
       if (remember_me) {
         dispatch({type: 'KEEP_ME_LOGGED_IN', payload: res.data.access_token})
       }
-      return Promise.resolve(true)
+      window.alert('login sukses')
     })
     .catch((err)=>{
       dispatch({type: 'LOGIN_FAILED', payload: err.response})
       dispatch(push('/login'))
-      return Promise.reject(false)
     })
   }
 }
@@ -32,21 +30,18 @@ export function verify() {
 
   return(dispatch)=>{
     return axios.post(url)
-    .then((res)=>{
-      console.log(res);
+    .then(res=>{
       dispatch({type: 'LOGIN_SUCCESS'})
-      return Promise.resolve(true)
     })
-    .catch((err)=>{
+    .catch(err=>{
       dispatch({type: 'LOGIN_FAILED', payload: null})
       dispatch(push('/login'))
-      return Promise.reject(false)
     })
   }
 }
 
-export function register(first_name, last_name, mail, password) {
-  let url = `${API_URL}users/`
+export function register(first_name, last_name, email, password) {
+  let url = `${API_URL}users`
 
   return(dispatch)=>{
     return axios.post(url, {
@@ -55,13 +50,11 @@ export function register(first_name, last_name, mail, password) {
       email,
       password
     })
-    .then((res)=>{
-      console.log(res);
-      return Promise.resolve(true)
+    .then(res=>{
+      dispatch(push('/login'))
     })
-    .catch((err)=>{
-      console.error(err);
-      return Promise.reject(false)
+    .catch(err=>{
+      return Promise.reject(err.response)
     })
   }
 }

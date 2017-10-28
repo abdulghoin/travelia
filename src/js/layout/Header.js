@@ -50,7 +50,7 @@ class Header extends Component {
     this.props.dispatch(login(email, password, remember_me))
     .then(()=>{
       this.setState({login_loader : false})
-      this.props.dispatch(push('register'))
+      // this.props.dispatch(push('/dashboard'))
     })
     .catch((error)=>{
       this.setState({login_loader : false, error})

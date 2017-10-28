@@ -37,6 +37,10 @@ const userSchema = new Schema({
     type : String,
     default : ''
   },
+  last_login : {
+    type : Date,
+    default : ''
+  },
   created_at : {
     type : Date,
     default : Date.now

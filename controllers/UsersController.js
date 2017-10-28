@@ -9,10 +9,16 @@ const register = (req, res) => {
   newUser.password = bcrypt.hashSync(req.body.password, 10);
   newUser.save()
   .then( user =>{
-    res.json(user)
+    res.status(200).json(user)
   })
   .catch(err=>{
-    res.json(err)
+    let error = [
+      {
+        error_label : 'email',
+        error_message : 'User already registered.'
+      },
+    ]
+    res.status(422).json(error)
   })
 }
 
@@ -42,18 +48,16 @@ const getUser = (req, res) =>{
 const updateUser = (req, res) => {
   req.body.updated_at = _.now()
   // User.update({ _id : req.params.id}, req.body)
-  User.update({ _id : req.user._id}, req.body, (err, person) => {
-    console.log(err);
+  User.update({ _id : req.user._id}, req.body)
+  .then(() => {
+    User.findOne({ _id : req.user._id})
+    .then(user => {
+      res.status(200).json(user)
+    })
   })
-  // .then(() => {
-  //   User.findOne({ _id : req.user._id})
-  //   .then(user => {
-  //     res.status(200).json(user)
-  //   })
-  // })
-  // .catch(err => {
-  //   res.json(err)
-  // })
+  .catch(err => {
+    res.json(err)
+  })
 }
 
 // delete
@@ -70,19 +74,20 @@ const deleteUser = (req, res) => {
 
 // login
 const login = (req, res) => {
-  if (Object.keys(req.body).length === 0 && req.body.constructor === Object) {
-    let error = [
-      {
-        error_label : 'email',
-        error_message : 'E-Mail is required.'
-      },
-      {
-        error_label : 'password',
-        error_message : 'Password is required.'
-      }
-    ]
-    res.status(402).json(error)
-  }
+  // empty field handled on Front End
+  // if (Object.keys(req.body).length === 0 && req.body.constructor === Object) {
+  //   let error = [
+  //     {
+  //       error_label : 'email',
+  //       error_message : 'E-Mail is required.'
+  //     },
+  //     {
+  //       error_label : 'password',
+  //       error_message : 'Password is required.'
+  //     }
+  //   ]
+  //   res.status(422).json(error)
+  // }
   let email = req.body.email
   let password = req.body.password
 
@@ -92,7 +97,7 @@ const login = (req, res) => {
       if (bcrypt.compareSync(password, user.password)) {
         let access_token = jwt.sign({ email: user.email, first_name: user.first_name, last_name: user.last_name, _id: user._id}, 'RESTFULAPIs')
         user.access_token = access_token
-        console.log(user);
+        user.last_login = _.now()
         User.update({ _id : user._id}, user)
         .then(() => {
           res.json(user)
@@ -119,8 +124,6 @@ const login = (req, res) => {
     })
   } else {
     let error = []
-    console.log(email);
-    console.log(password);
     if (email == '' || email == undefined) {
       error.push({
         error_label : 'email',
@@ -134,7 +137,7 @@ const login = (req, res) => {
       })
     }
 
-    res.status(402).json(error)
+    res.status(422).json(error)
   }
 }
 

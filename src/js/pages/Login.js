@@ -1,6 +1,7 @@
 // import Packages
 import React, {Component} from 'react'
 import Helmet from 'react-helmet'
+import {push} from 'react-router-redux'
 import {Link} from 'react-router'
 import {connect} from 'react-redux'
 

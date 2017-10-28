@@ -4,6 +4,9 @@ import Helmet from 'react-helmet'
 import {Link} from 'react-router'
 import {connect} from 'react-redux'
 
+// import Components
+import ButtonLoader from 'ButtonLoader'
+
 // import Actions
 import {register} from 'usersActions'
 
@@ -21,7 +24,7 @@ class Register extends Component {
       email : '',
       password : '',
       confirm_password : '',
-      register_loader : '',
+      register_loader : false,
       error : null
     }
   }
@@ -63,6 +66,17 @@ class Register extends Component {
     let {first_name, last_name, email, password, confirm_password, register_loader, error} = this.state
     let error_confirm = password !== confirm_password? true : false
     let register = first_name !== '' && last_name !== '' && email !== '' && password !== '' && !error_confirm ? true : false
+
+    let email_error = ''
+    if (error != null) {
+      switch (error.status) {
+        case 422:
+          email_error = error.data[0].error_message
+        break;
+        default:
+
+      }
+    }
     return(
       <section class="card card-register mx-auto mt-5">
         <Helmet title='Register' />
@@ -100,7 +114,7 @@ class Register extends Component {
             <div class="form-group">
               <label for="email">Email address</label>
               <input
-                class="form-control"
+                class={`form-control ${email_error!=''? 'error_field': ''}`}
                 id="email"
                 type="email"
                 aria-describedby="emailHelp"
@@ -108,6 +122,10 @@ class Register extends Component {
                 value={email}
                 onChange={this.onEmailChange}
               />
+              {
+                email_error != '' &&
+                <p class='error_text'>{email_error}</p>
+              }
             </div>
             <div class="form-group">
               <div class="form-row">
@@ -139,7 +157,10 @@ class Register extends Component {
             <button
               class={`${!register? 'disabled': ''} btn btn-primary btn-block`}
               onClick={register? this.onRegister: null}
-            >Register</button>
+            >
+              {register_loader && <ButtonLoader/>}
+              Register
+            </button>
           </div>
           <div class="text-center">
             <Link class="d-block small mt-3" to="/login">Login Page</Link>
