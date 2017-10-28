@@ -26,6 +26,16 @@ export default function reducer(state={
       }
     }
     break;
+    case 'LOGIN_FAILED': {
+      return {
+        ...state,
+        fetched : true,
+        fetching : false,
+        error : action.payload,
+        user : null,
+      }
+    }
+    break;
     case 'LOGOUT_SUCCESS': {
       return {
         ...state,

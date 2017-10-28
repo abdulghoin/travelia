@@ -42,16 +42,18 @@ const getUser = (req, res) =>{
 const updateUser = (req, res) => {
   req.body.updated_at = _.now()
   // User.update({ _id : req.params.id}, req.body)
-  User.update({ _id : req.user._id}, req.body)
-  .then(() => {
-    User.findOne({ _id : req.user._id})
-    .then(user => {
-      res.status(200).json(user)
-    })
+  User.update({ _id : req.user._id}, req.body, (err, person) => {
+    console.log(err);
   })
-  .catch(err => {
-    res.json(err)
-  })
+  // .then(() => {
+  //   User.findOne({ _id : req.user._id})
+  //   .then(user => {
+  //     res.status(200).json(user)
+  //   })
+  // })
+  // .catch(err => {
+  //   res.json(err)
+  // })
 }
 
 // delete

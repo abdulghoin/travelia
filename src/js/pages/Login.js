@@ -4,12 +4,17 @@ import Helmet from 'react-helmet'
 import {Link} from 'react-router'
 import {connect} from 'react-redux'
 
+// import Components
+import ButtonLoader from 'ButtonLoader'
+
 // import Actions
 import {login} from 'usersActions'
 
 // import Stores
 @connect((store)=>{
-  return{}
+  return{
+    login_error : store.users.error
+  }
 })
 
 class Login extends Component {
@@ -21,7 +26,6 @@ class Login extends Component {
       show_password : false,
       remember_me : false,
       login_loader : false,
-      error : null
     }
   }
 
@@ -43,20 +47,34 @@ class Login extends Component {
 
   onLogin =()=>{
     let {email, password, remember_me} = this.state;
-    this.setState({login_loader : true, error : null})
+    this.setState({login_loader : true})
     this.props.dispatch(login(email, password, remember_me))
     .then(()=>{
       this.setState({login_loader : false})
       this.props.dispatch(push('/dashboard'))
     })
     .catch((error)=>{
-      this.setState({login_loader : false, error})
+      this.setState({login_loader : false})
     })
   }
 
   render() {
-    let {email, password, show_password, remember_me, login_loader, error} = this.state
+    let {email, password, show_password, remember_me, login_loader} = this.state
+    let {login_error} = this.props
     let login = email !== '' && password !== ''? true : false
+    let email_error = ''
+    let password_error = ''
+    if (login_error!=null) {
+      switch (login_error.status) {
+        case 404:
+          email_error = login_error.data[0].error_message
+        break;
+        case 401:
+          password_error = login_error.data[0].error_message
+        break;
+        default:
+      }
+    }
     return(
       <div class="card card-login mx-auto mt-5">
         <Helmet title='Log In'/>
@@ -66,7 +84,7 @@ class Login extends Component {
             <div class="form-group">
               <label for="email">Email address</label>
               <input
-                class="form-control"
+                class={`form-control ${email_error!=''? 'error_field': ''}`}
                 id="email"
                 type="email"
                 aria-describedby="emailHelp"
@@ -74,12 +92,16 @@ class Login extends Component {
                 value={email}
                 onChange={this.onEmailChange}
               />
+              {
+                email_error != '' &&
+                <p class='error_text'>{email_error}</p>
+              }
             </div>
             <div class="form-group">
               <label for="password">Password</label>
               <div class="input-group">
                 <input
-                  class="form-control"
+                  class={`form-control ${password_error!=''? 'error_field': ''}`}
                   id="password"
                   type={show_password?'text':'password'}
                   placeholder="Password"
@@ -91,6 +113,10 @@ class Login extends Component {
                   onClick={this.onShowPasswoedChange}
                 >{show_password?'Hidden':'Show'}</span>
               </div>
+              {
+                password_error != '' &&
+                <p class='error_text'>{password_error}</p>
+              }
             </div>
             <div class="form-group">
               <div class="form-check">
@@ -107,6 +133,7 @@ class Login extends Component {
               class={`${!login? 'disabled': ''} btn btn-primary btn-block`}
               onClick={login? this.onLogin : null}
             >
+              {login_loader && <ButtonLoader/>}
               Login
             </button>
           </div>

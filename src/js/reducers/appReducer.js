@@ -1,38 +1,21 @@
 export default function reducer(state={
-    reports : [],
-    fetching : false,
-    fetched : false,
-    error : null,
+    access_token : null,
   }, action) {
 
   switch (action.type) {
-    case 'GET_REPORT': {
+    case 'KEEP_ME_LOGGED_IN': {
+      localStorage.setItem('access_token', action.payload)
       return {
         ...state,
-        fetching : true,
-        reports : [],
-        fetched : false,
-        error : null,
+        access_token : action.payload
       }
     }
     break;
-    case 'GET_REPORT_SUCCESS': {
+    case 'LOGIN_FAILED': {
+      localStorage.removeItem('access_token')
       return {
         ...state,
-        fetched : true,
-        fetching : false,
-        error : null,
-        reports : action.payload,
-      }
-    }
-    break;
-    case 'GET_REPORT_FAILED': {
-      return {
-        ...state,
-        reports : [],
-        fetching : false,
-        fetched : true,
-        error : action.payload,
+        access_token : null
       }
     }
     break;

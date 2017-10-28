@@ -1,7 +1,11 @@
 // import Packages
 import React, {Component} from 'react'
+import {push} from 'react-router-redux'
 import {IndexLink} from 'react-router'
 import {connect} from 'react-redux'
+
+// import Components
+import ButtonLoader from 'ButtonLoader'
 
 // import Actions
 import {login} from 'usersActions'
@@ -46,7 +50,7 @@ class Header extends Component {
     this.props.dispatch(login(email, password, remember_me))
     .then(()=>{
       this.setState({login_loader : false})
-      this.props.dispatch(push('/dashboard'))
+      this.props.dispatch(push('register'))
     })
     .catch((error)=>{
       this.setState({login_loader : false, error})
@@ -99,6 +103,7 @@ class Header extends Component {
                 class={`${!login? 'disabled': ''} btn btn-primary my-sm-0`}
                 onClick={login? this.onLogin : null}
               >
+                {login_loader && <ButtonLoader />}
                 Log In
               </button>
             </div>

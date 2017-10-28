@@ -1,5 +1,6 @@
 // import Packages
 import axios from 'axios'
+import {push} from 'react-router-redux'
 import {API_URL} from 'baseURL'
 
 export function login(email, password, remember_me) {
@@ -12,26 +13,33 @@ export function login(email, password, remember_me) {
     })
     .then((res)=>{
       console.log(res);
+      dispatch({type: 'LOGIN_SUCCESS', payload: res.data})
+      if (remember_me) {
+        dispatch({type: 'KEEP_ME_LOGGED_IN', payload: res.data.access_token})
+      }
       return Promise.resolve(true)
     })
     .catch((err)=>{
-      console.error(err);
+      dispatch({type: 'LOGIN_FAILED', payload: err.response})
+      dispatch(push('/login'))
       return Promise.reject(false)
     })
   }
 }
 
-export function verify(token) {
-  let url = `${API_URL}users/verify`
+export function verify() {
+  let url = `${API_URL}users/verify?access_token=${localStorage.getItem('access_token')}`
 
   return(dispatch)=>{
-    return axios.post(url, {token})
+    return axios.post(url)
     .then((res)=>{
       console.log(res);
+      dispatch({type: 'LOGIN_SUCCESS'})
       return Promise.resolve(true)
     })
     .catch((err)=>{
-      console.error(err);
+      dispatch({type: 'LOGIN_FAILED', payload: null})
+      dispatch(push('/login'))
       return Promise.reject(false)
     })
   }
